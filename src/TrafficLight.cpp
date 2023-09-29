@@ -14,7 +14,10 @@ T MessageQueue<T>::receive()
 
     // remove last vector element from queue
     T msg = std::move(_queue.back());
-    _queue.pop_back();
+
+    // https://knowledge.udacity.com/questions/586056
+    //once new traffic light msg arrives, all the older msgs are redundant. So we have to clear _queue at send (as soon as new msg arrives).
+    _queue.clear();
 
     return msg;
 }
@@ -25,7 +28,7 @@ void MessageQueue<T>::send(T &&msg)
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
     std::lock_guard<std::mutex> lck(_mutex);
-    _queue.push_back(std::move(msg));
+    _queue.emplace_back(std::move(msg));
     _condition.notify_one();
 }
 
